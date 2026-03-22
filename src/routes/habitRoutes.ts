@@ -30,4 +30,6 @@ router.post('/:id/complete', (req, res) => {
     res.json({
         message: 'completed habit'
     })
-})
+});
+
+export default router;
