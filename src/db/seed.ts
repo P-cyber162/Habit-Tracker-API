@@ -72,5 +72,10 @@ const seed = async() => {
 }
 
 if(import.meta.url === `file://${process.argv[1]}`) {
-    
+    seed()
+    .then(() => process.exit(0))
+    .catch(e => process.exit(1))
+
 }
+
+export default seed;
