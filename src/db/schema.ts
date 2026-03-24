@@ -9,8 +9,7 @@ import {
  } from 'drizzle-orm/pg-core';
 
 import { relations } from 'drizzle-orm';
-import { email } from 'zod';
-import { time } from 'console';
+import { createInsertSchema, createSelectSchema} from 'drizzle-zod'
 
 export const users = pgTable('users', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -81,3 +80,34 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
     entries: many(entries),
     habitTags: many(habitTags),
 }));
+
+export const entriesRelations = relations(entries, ({ one }) => ({
+    habit: one(habits, {
+        fields: [entries.id],
+        references: [habits.id],
+    }),
+}));
+
+export const tagsRelations = relations(tags, ({many}) => ({
+    habitTags: many(habitTags),
+}));
+
+export const habitTagsRelation = relations(habitTags, ({ one }) => ({
+    habit: one(habits, {
+        fields: [habitTags.id],
+        references: [habits.id],
+    }),
+    tag: one(tags, {
+        fields: [habitTags.id], //PK
+        references: [tags.id],  //FK
+    }),
+}));
+
+export type User = typeof users.$inferSelect
+export type Habit = typeof habits.$inferSelect
+export type Entry = typeof entries.$inferSelect
+export type Tag = typeof tags.$inferSelect
+export type HabitTag = typeof habitTags.$inferSelect
+
+export const insertUserSchema = createInsertSchema(users)
+export const selectUserSchema = createSelectSchema(users) // FOR CHECKING TYPES AT RUNTIME
