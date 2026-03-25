@@ -1,5 +1,8 @@
+import { fileURLToPath } from 'url';
 import { db } from './connnection.ts';
 import { users, habits, entries, tags, habitTags } from './schema.ts';
+
+const __filename = fileURLToPath(import.meta.url);
 
 const seed = async() => {
     console.log('🌱 Starting database:...');
@@ -71,7 +74,7 @@ const seed = async() => {
     }
 }
 
-if(import.meta.url === `file://${process.argv[1]}`) {
+if(process.argv[1] === __filename) {
     seed()
     .then(() => process.exit(0))
     .catch(e => process.exit(1))
