@@ -61,4 +61,4 @@ export const validateQuery = (schema: ZodSchema) => {
             next(e);
         }
     }
-}
+};

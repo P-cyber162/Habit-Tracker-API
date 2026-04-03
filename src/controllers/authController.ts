@@ -1,14 +1,12 @@
 import type { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import { db } from '../db/connnection.ts';
 import { generateToken } from '../utils/jwt.ts';
-import { hashPassword } from '../utils/password.ts'
+import { comparePasswords, hashPassword } from '../utils/password.ts'
 import { users, type NewUser } from '../db/schema.ts';
-import { userInfo } from 'os';
 
 export const register = async (req:Request<any, any, NewUser>, res:Response) => {
     try{
-        const hashedPassword = await hashPassword(req.body.password)
+        const hashedPassword = await hashPassword(req.body.password);
 
         const [user] = await db.insert(users).values({
             ...req.body,
@@ -27,13 +25,13 @@ export const register = async (req:Request<any, any, NewUser>, res:Response) => 
             id: user.id,
             email: user.email,
             username: user.username,
-        })
+        });
 
         return res.status(201).json({
             message: 'User created',
             user,
             token,
-        })
+        });
 
     } catch(e){
         console.error('Registration error ', e)
@@ -41,4 +39,48 @@ export const register = async (req:Request<any, any, NewUser>, res:Response) => 
             error: 'Failed to create user'
         })
     }
-}
+};
+
+export const login = async (req: Request, res: Response) => {
+
+    try{
+        const { email, password } = req.body;
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email),
+        });
+
+        if(!user) {
+            return res.status(401).json({error: "Invalid credentials!"})
+        };
+
+        const isValidatedPassword = comparePasswords(password, user.password);
+
+        if(isValidatedPassword) {
+            return res.status(401).json({ error: "Invalid credentials!" });
+        };
+
+        const token = await generateToken({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+        });
+
+        return res.status(200).json({
+            message: 'Login Successful!',
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                createdAt: user.createdAt,
+            }
+        });
+        
+    }catch(e){
+        console.error("Logging error", e);
+        res.status(500).json({ error: "Failed to login!"});
+    };
+};
