@@ -20,10 +20,8 @@ export const generateToken = (payload: JwtPayload) => {
 };
 
 export const verifyToken = async(token: string) => {
-    try{
         const secretKey = createSecretKey(env.JWT_SECRET, 'utf-8');
         const { payload } = await jwtVerify(token, secretKey);
 
         return payload as unknown as JwtPayload;
-    }catch(error){}
-}; 
+};
