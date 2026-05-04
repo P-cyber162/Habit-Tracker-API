@@ -3,6 +3,7 @@ import { db } from '../db/connnection.ts';
 import { generateToken } from '../utils/jwt.ts';
 import { comparePasswords, hashPassword } from '../utils/password.ts'
 import { users, type NewUser } from '../db/schema.ts';
+import { eq } from 'drizzle-orm';
 
 export const register = async (req:Request<any, any, NewUser>, res:Response) => {
     try{
